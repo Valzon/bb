@@ -54,7 +54,7 @@ describe("bb thread pane command output", () => {
     ]);
   });
 
-  it.each(["spotlight", "clear-spotlight"] as const)(
+  it.each(["spotlight", "clear-spotlight", "pin", "unpin"] as const)(
     "sends the %s action for an explicit thread",
     async (action) => {
       const paneAction = vi.fn(async () => ({ delivered: 1 }));

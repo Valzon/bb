@@ -43,6 +43,8 @@ export const maximizedPaneIdAtom = atomWithStorage<string | null>(
   { getOnInit: true },
 );
 
+export const recentPaneIdsAtom = atom<readonly string[]>([]);
+
 export const DIM_INACTIVE_SPLITS_STORAGE_KEY =
   "bb.splitLayout.dimInactiveSplits";
 

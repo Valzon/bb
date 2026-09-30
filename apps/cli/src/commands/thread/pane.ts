@@ -40,10 +40,12 @@ export function registerPaneCommand(
   parent
     .command("pane")
     .description("Control an open thread pane in connected BB apps")
-    .usage("<maximize|restore|toggle|spotlight|clear-spotlight> [id] [options]")
+    .usage(
+      "<maximize|restore|toggle|spotlight|clear-spotlight|pin|unpin> [id] [options]",
+    )
     .argument(
       "<action>",
-      "Pane action: maximize, restore, toggle, spotlight, or clear-spotlight",
+      "Pane action: maximize, restore, toggle, spotlight, clear-spotlight, pin, or unpin. pin keeps the thread's pane when you open something else (not the sidebar pin, which is bb thread pin)",
     )
     .argument("[id]", "Thread ID. Omit inside a BB thread.")
     .option("--json", "Print machine-readable JSON output")

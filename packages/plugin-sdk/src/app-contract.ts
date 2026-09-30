@@ -1541,6 +1541,11 @@ export interface PluginSidebarSplitLayout {
     /** The thread this pane shows, or null for non-thread content. */
     threadId: string | null;
     isFocused: boolean;
+    /**
+     * The user pinned this pane: navigation that would replace it opens in the
+     * most recently focused unpinned pane instead.
+     */
+    isPinned: boolean;
   }[];
 }
 

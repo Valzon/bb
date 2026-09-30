@@ -147,13 +147,18 @@ For review or fix pipelines, get the environment ID from
   target thread workspace.
 - Absolute paths under `BB_THREAD_STORAGE` open as thread-storage files for the
   current thread.
-- Use `bb thread pane maximize|restore|toggle|spotlight|clear-spotlight
+- Use `bb thread pane maximize|restore|toggle|spotlight|clear-spotlight|pin|unpin
 [thread-id]` to change a matching open pane in every connected BB app window.
   Inside a BB thread, omit the ID to use `BB_THREAD_ID`. The command reports
   how many connected clients received the ephemeral action. The SDK equivalent is
   `sdk.threads.paneAction({ threadId, action })`.
 - Users can also toggle the focused pane from its header or with the configurable
   `pane.maximize.toggle` app command (default `Mod+Shift+E`).
+- `pin` keeps a pane when the user opens something else: sidebar navigation, a
+  plugin opened from the navigation strip, a `replace` open, and the eight-pane
+  limit all go to the most recently focused unpinned pane instead. Users pin
+  from the pane header or the unassigned `pane.pin.toggle` command. It is
+  unrelated to `bb thread pin`, which pins a thread in the sidebar.
 
 ## Files And Voice
 

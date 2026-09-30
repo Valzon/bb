@@ -133,3 +133,33 @@ describe("split layout persistence", () => {
     ).toBeNull();
   });
 });
+
+describe("pinned panes", () => {
+  it("round-trips a pinned pane and still reads layouts saved without pins", () => {
+    const pinned = layoutWithPaneCount(2);
+    if (pinned.root.type !== "split") {
+      throw new Error("expected a split");
+    }
+    const first = pinned.root.children[0];
+    if (first === undefined || first.type !== "pane") {
+      throw new Error("expected a pane");
+    }
+    const withPin: SplitLayout = {
+      ...pinned,
+      root: {
+        ...pinned.root,
+        children: [
+          { ...first, pinned: true },
+          ...pinned.root.children.slice(1),
+        ],
+      },
+    };
+
+    expect(deserializeSplitLayout(serializeSplitLayout(withPin))).toEqual(
+      withPin,
+    );
+    expect(deserializeSplitLayout(serializeSplitLayout(pinned))).toEqual(
+      pinned,
+    );
+  });
+});

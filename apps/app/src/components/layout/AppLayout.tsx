@@ -112,7 +112,7 @@ import {
   useMobileVisualViewportHeight,
 } from "./useMobileVisualViewportHeight";
 import { wsManager } from "@/lib/ws";
-import { splitLayoutAtom } from "@/lib/split-layout/atoms";
+import { recentPaneIdsAtom, splitLayoutAtom } from "@/lib/split-layout/atoms";
 import { findPaneByThread } from "@/lib/split-layout";
 import { applyThreadOpenToLayout } from "@/views/thread-detail/splitThreadNavigation";
 import { useAppSettingsRouteMemory } from "@/hooks/useAppSettingsRouteMemory";
@@ -452,6 +452,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           current,
           { projectId: signal.projectId, threadId: signal.threadId },
           isCompactViewport ? "replace" : signal.split,
+          store.get(recentPaneIdsAtom),
         );
         if (next !== current) {
           store.set(splitLayoutAtom, next);

@@ -719,6 +719,8 @@ export const threadPaneActionSchema = z.enum([
   "toggle",
   "spotlight",
   "clear-spotlight",
+  "pin",
+  "unpin",
 ]);
 export type ThreadPaneAction = z.infer<typeof threadPaneActionSchema>;
 

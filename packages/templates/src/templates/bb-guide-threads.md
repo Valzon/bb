@@ -237,7 +237,7 @@ Opening threads and files in the app:
   bb thread open <thread-id> [path]        Open a thread, optionally with a panel file
     --line <number>                        Line number to focus
     --split <placement>                    right, down, left, top, or replace
-  bb thread pane <action> [thread-id]      Maximize, restore, toggle, spotlight, or clear spotlight
+  bb thread pane <action> [thread-id]      Maximize, restore, toggle, spotlight, clear spotlight, pin, or unpin
 
   Inside a BB thread, BB_THREAD_ID selects the current thread automatically and
   the thread ID argument is omitted for file-only opens. Outside a BB thread,
@@ -247,6 +247,9 @@ Opening threads and files in the app:
   Pane actions broadcast to connected BB app windows and affect the matching
   already-open pane without changing its split tree. Spotlight focuses that
   pane and dims the others; clear-spotlight focuses it and removes split dimming.
+  Pin keeps that pane when the user opens something else: the new content goes
+  to the most recently focused unpinned pane. Unpin undoes it. This is not
+  bb thread pin, which pins a thread in the sidebar.
   Paths can be thread-relative workspace paths, or absolute paths inside the
   target thread workspace. Absolute paths under BB_THREAD_STORAGE open as
   thread-storage files for the current thread. Use this for Markdown or HTML

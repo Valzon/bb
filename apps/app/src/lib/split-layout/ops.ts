@@ -319,17 +319,94 @@ export function swapPanes(
   if (pane === null || targetPane === null) {
     return layout;
   }
-  const withFirstSwap = replacePaneNode(layout.root, paneId, {
-    ...pane,
-    content: targetPane.content,
-  });
+  const withFirstSwap = replacePaneNode(
+    layout.root,
+    paneId,
+    withPinned(
+      { ...pane, content: targetPane.content },
+      targetPane.pinned === true,
+    ),
+  );
   return {
-    root: replacePaneNode(withFirstSwap, targetPaneId, {
-      ...targetPane,
-      content: pane.content,
-    }),
+    root: replacePaneNode(
+      withFirstSwap,
+      targetPaneId,
+      withPinned(
+        { ...targetPane, content: pane.content },
+        pane.pinned === true,
+      ),
+    ),
     focusedPaneId: targetPaneId,
   };
+}
+
+function withPinned(pane: PaneNode, pinned: boolean): PaneNode {
+  const unpinned: PaneNode = {
+    type: "pane",
+    paneId: pane.paneId,
+    content: pane.content,
+  };
+  return pinned ? { ...unpinned, pinned: true } : unpinned;
+}
+
+export function isPanePinned(layout: SplitLayout, paneId: string): boolean {
+  return findPane(layout.root, paneId)?.pinned === true;
+}
+
+export function setPanePinned(
+  layout: SplitLayout,
+  paneId: string,
+  pinned: boolean,
+): SplitLayout {
+  const pane = findPane(layout.root, paneId);
+  if (pane === null || (pane.pinned === true) === pinned) {
+    return layout;
+  }
+  return {
+    ...layout,
+    root: replacePaneNode(layout.root, paneId, withPinned(pane, pinned)),
+  };
+}
+
+export function withRecentPane(
+  recentPaneIds: readonly string[],
+  paneId: string,
+): string[] {
+  return [paneId, ...recentPaneIds.filter((id) => id !== paneId)].slice(
+    0,
+    MAX_PANES,
+  );
+}
+
+export function navigationTargetPaneId(
+  layout: SplitLayout,
+  recentPaneIds: readonly string[],
+): string | null {
+  if (!isPanePinned(layout, layout.focusedPaneId)) {
+    return layout.focusedPaneId;
+  }
+  const unpinned = listPanes(layout.root).filter(
+    (pane) => pane.pinned !== true,
+  );
+  const recent = recentPaneIds.find((paneId) =>
+    unpinned.some((pane) => pane.paneId === paneId),
+  );
+  return recent ?? unpinned[0]?.paneId ?? null;
+}
+
+export function placePaneContent(
+  layout: SplitLayout,
+  content: PaneContent,
+  recentPaneIds: readonly string[],
+): SplitLayout {
+  const targetPaneId = navigationTargetPaneId(layout, recentPaneIds);
+  if (targetPaneId !== null) {
+    return replacePaneContent(layout, targetPaneId, content);
+  }
+  const split = splitPane(layout, layout.focusedPaneId, "right", content);
+  return split === layout
+    ? replacePaneContent(layout, layout.focusedPaneId, content)
+    : split;
 }
 
 function equalSizes(count: number): number[] {
