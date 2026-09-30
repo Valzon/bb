@@ -498,6 +498,7 @@ delayed shortcut badges without disabling any shortcuts.
 | Layout    | Previous / next chat pane                 | Unassigned                        | While split              |
 | Layout    | Focus chat pane 1–8                       | Platform defaults above           | Split (web / desktop)    |
 | Layout    | Maximize / restore chat pane              | `Mod+Shift+E`                     | While split              |
+| Layout    | Pin / unpin focused chat pane             | Unassigned                        | While split              |
 | Layout    | Close focused chat pane                   | `Mod+Shift+X`                     | While split              |
 | Window    | New window                                | `Mod+Shift+N`                     | Desktop                  |
 | Window    | Settings                                  | `Mod+,`                           | All clients              |
@@ -1021,18 +1022,27 @@ edge placement replaces the focused pane. Every pane header can temporarily
 maximize that pane without unmounting or resizing the underlying split tree;
 the same control restores the exact arrangement. Maximization follows focus and
 newly opened panes, closing the maximized pane restores the surviving layout,
-and both the split tree and maximized pane restore after reload. Compact
+and both the split tree and maximized pane restore after reload. Every pane
+header can also pin its pane: navigation that would replace a pinned pane (a
+sidebar thread, a plugin from the navigation strip, a `replace` open, or the
+eight-pane limit) opens in the most recently focused unpinned pane instead, and
+beside the focused pane when every pane is pinned. Content already open in a
+pane still just focuses it. Pins restore after reload and follow their content
+when panes swap; `pane.pin.toggle` pins or unpins the focused pane. Compact
 viewports show the ordinary single-page surface while preserving that desktop
 layout state.
 It also enables explicit split placement through
 `bb thread open <thread-id> --split right|down|left|top|replace` and the matching
 SDK request, plus pane presentation controls through
-`bb thread pane maximize|restore|toggle|spotlight|clear-spotlight [thread-id]` and
+`bb thread pane maximize|restore|toggle|spotlight|clear-spotlight|pin|unpin [thread-id]` and
 `sdk.threads.paneAction({ threadId, action })`. Pane actions apply only when the
 target thread is already open in a multi-pane app window; the response reports
 how many connected clients received the broadcast. `spotlight` focuses the
 target pane and persistently dims the others; `clear-spotlight` focuses it and
-persistently restores undimmed splits.
+persistently restores undimmed splits. `pin` and `unpin` pin or unpin the
+thread's pane without moving focus; they are unrelated to `bb thread pin`, which
+pins a thread in the sidebar. Plugins read pins as `isPinned` on each pane of
+`useSidebarSplitLayout()`.
 
 ## Account Pooler [Experimental]
 

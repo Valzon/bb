@@ -174,12 +174,14 @@ function twoPaneLayout(threadId: string): PluginSidebarSplitLayout {
         rect: { x: 0, y: 0, width: 0.5, height: 1 },
         threadId,
         isFocused: true,
+        isPinned: false,
       },
       {
         paneId: "pane-compose",
         rect: { x: 0.5, y: 0, width: 0.5, height: 1 },
         threadId: null,
         isFocused: false,
+        isPinned: false,
       },
     ],
   };

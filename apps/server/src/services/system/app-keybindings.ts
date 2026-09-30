@@ -225,6 +225,7 @@ export const DEFAULT_APP_KEYBINDINGS: AppDefaultKeybindings = [
     { mod: true, shift: true },
     splitWithoutModal,
   ),
+  unassignedBinding("pane.pin.toggle", splitWithoutModal),
   binding("pane.close", "x", { mod: true, shift: true }, splitWithoutModal),
   ...macArrowBindings(
     "panel.previousTab",

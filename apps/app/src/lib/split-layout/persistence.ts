@@ -35,6 +35,7 @@ const paneNodeSchema: z.ZodType<PaneNode> = z
     type: z.literal("pane"),
     paneId: z.string().min(1),
     content: paneContentSchema,
+    pinned: z.literal(true).optional(),
   })
   .strict();
 

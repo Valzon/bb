@@ -44,6 +44,7 @@ describe("toPluginSidebarSplitLayout", () => {
       "thr_b",
     ]);
     expect(layout?.panes.map((pane) => pane.isFocused)).toEqual([false, true]);
+    expect(layout?.panes.map((pane) => pane.isPinned)).toEqual([false, false]);
     const [left, right] = layout!.panes;
     expect(left!.rect.x).toBe(0);
     expect(left!.rect.width).toBeCloseTo(0.5);

@@ -22,6 +22,7 @@ export interface PaneNode {
   type: "pane";
   paneId: string;
   content: PaneContent;
+  pinned?: true;
 }
 
 export interface SplitNode {

@@ -7,8 +7,10 @@ import {
   findPaneByThread,
   isSamePaneContent,
   MAX_PANES,
+  placePaneContent,
   replacePaneContent,
   setFocus,
+  setPanePinned,
   splitPane,
 } from "@/lib/split-layout";
 import { decideThreadDrop, type SplitZone } from "@/lib/split-drag";
@@ -106,6 +108,7 @@ export function paneContentForPathname(pathname: string): PaneContent | null {
 export function reconcileLayoutForContent(
   layout: SplitLayout | null,
   content: PaneContent,
+  recentPaneIds: readonly string[] = [],
 ): SplitLayout {
   if (layout === null) {
     return createSinglePaneContentLayout(content);
@@ -122,7 +125,7 @@ export function reconcileLayoutForContent(
       ? withRouteState
       : setFocus(withRouteState, existing.paneId);
   }
-  return replacePaneContent(layout, layout.focusedPaneId, content);
+  return placePaneContent(layout, content, recentPaneIds);
 }
 
 export function replaceOriginPaneContent(
@@ -154,6 +157,7 @@ export function applyThreadOpenToLayout(
   layout: SplitLayout | null,
   thread: ThreadRoutePathArgs,
   split: ThreadOpenSplit,
+  recentPaneIds: readonly string[] = [],
 ): SplitLayout {
   if (layout === null) {
     return createSinglePaneLayout(thread);
@@ -175,7 +179,7 @@ export function applyThreadOpenToLayout(
   }
   const content = threadPaneContent(thread);
   return decision.zone === "center"
-    ? replacePaneContent(layout, layout.focusedPaneId, content)
+    ? placePaneContent(layout, content, recentPaneIds)
     : splitPane(layout, layout.focusedPaneId, decision.zone, content);
 }
 
@@ -209,6 +213,13 @@ export function applyThreadPaneActionToLayout(
     return {
       layout,
       maximizedPaneId: maximizedPaneId === pane.paneId ? null : maximizedPaneId,
+      dimInactiveSplits: null,
+    };
+  }
+  if (action === "pin" || action === "unpin") {
+    return {
+      layout: setPanePinned(layout, pane.paneId, action === "pin"),
+      maximizedPaneId,
       dimInactiveSplits: null,
     };
   }

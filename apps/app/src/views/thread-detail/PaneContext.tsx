@@ -22,6 +22,8 @@ export interface PaneContextValue {
   isMaximized: boolean;
   onToggleMaximize: (() => void) | null;
   onMoveToSide?: (side: SplitSide) => void;
+  isPinned?: boolean;
+  onTogglePin?: () => void;
   isBoundedPane: boolean;
   isTopRow: boolean;
   ownsWindowTopLeft: boolean;

@@ -37,6 +37,7 @@ export function toPluginSidebarSplitLayout(
               threadId:
                 pane.content.kind === "thread" ? pane.content.threadId : null,
               isFocused: pane.paneId === layout.focusedPaneId,
+              isPinned: pane.pinned === true,
             },
           ];
     }),

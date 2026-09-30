@@ -33,19 +33,23 @@ import { useSplitWorkspaceActive } from "@/hooks/useSplitWorkspaceActive";
 import {
   dimInactiveSplitsAtom,
   maximizedPaneIdAtom,
+  recentPaneIdsAtom,
   splitLayoutAtom,
 } from "@/lib/split-layout/atoms";
 import {
   computePaneRects,
   countPanes,
   findPane,
+  isPanePinned,
   listPanes,
   movePane,
   removePane,
   replacePaneContent,
   resizeSplit,
   setFocus,
+  setPanePinned,
   swapPanes,
+  withRecentPane,
 } from "@/lib/split-layout";
 import {
   createSplitResizeFlexPair,
@@ -120,6 +124,7 @@ import {
   CONTEXT_SELECTION_SURFACE_CLASS,
 } from "@/components/ui/context-selection";
 import { PaneMaximizeButton } from "./PaneMaximizeButton";
+import { PanePinButton } from "./PanePinButton";
 import { wsManager } from "@/lib/ws";
 import { useImmediateRouteNavigate } from "@/components/ui/app-route-anchor";
 import { PluginDetailOpenerBoundary } from "@/components/plugin/plugin-detail-opener";
@@ -306,9 +311,13 @@ function SplitThreadAreaContent({ routeContent }: SplitThreadAreaProps) {
       return;
     }
     setLayout((previous) =>
-      reconcileLayoutForContent(previous, currentContent),
+      reconcileLayoutForContent(
+        previous,
+        currentContent,
+        store.get(recentPaneIdsAtom),
+      ),
     );
-  }, [currentContent, setLayout]);
+  }, [currentContent, setLayout, store]);
 
   const layout: SplitLayout | null =
     storedLayout ??
@@ -319,6 +328,15 @@ function SplitThreadAreaContent({ routeContent }: SplitThreadAreaProps) {
         : null);
   const panes = layout === null ? [] : listPanes(layout.root);
   const isSplitActive = splitWorkspaceActive && panes.length > 1;
+  const focusedPaneId = layout?.focusedPaneId ?? null;
+  useEffect(() => {
+    if (focusedPaneId === null) {
+      return;
+    }
+    store.set(recentPaneIdsAtom, (recent) =>
+      withRecentPane(recent, focusedPaneId),
+    );
+  }, [focusedPaneId, store]);
   const maximizedPane =
     layout !== null && maximizedPaneId !== null
       ? findPane(layout.root, maximizedPaneId)
@@ -562,6 +580,18 @@ function SplitThreadAreaContent({ routeContent }: SplitThreadAreaProps) {
     [navigate, setMaximizedPaneId, store],
   );
 
+  const togglePinPane = useCallback(
+    (paneId: string) => {
+      const current = store.get(splitLayoutAtom);
+      if (current === null) return;
+      store.set(
+        splitLayoutAtom,
+        setPanePinned(current, paneId, !isPanePinned(current, paneId)),
+      );
+    },
+    [store],
+  );
+
   const movePaneToSide = useCallback(
     (paneId: string, side: SplitSide) => {
       const current = store.get(splitLayoutAtom);
@@ -723,6 +753,7 @@ function SplitThreadAreaContent({ routeContent }: SplitThreadAreaProps) {
       maximizedPaneId={effectiveMaximizedPaneId}
       panes={panes}
       toggleMaximizePane={toggleMaximizePane}
+      togglePinPane={togglePinPane}
     />
   );
 
@@ -781,6 +812,7 @@ function SplitThreadAreaContent({ routeContent }: SplitThreadAreaProps) {
             }}
             onClosePane={closePane}
             onToggleMaximizePane={toggleMaximizePane}
+            onTogglePinPane={togglePinPane}
             onMovePaneToSide={movePaneToSide}
             onResize={resize}
             onNavigateInPane={navigateInPane}
@@ -801,6 +833,7 @@ interface SplitPaneCommandHandlersProps {
   maximizedPaneId: string | null;
   panes: readonly PaneNode[];
   toggleMaximizePane: (paneId: string) => void;
+  togglePinPane: (paneId: string) => void;
 }
 
 function SplitPaneCommandHandlers({
@@ -811,6 +844,7 @@ function SplitPaneCommandHandlers({
   maximizedPaneId,
   panes,
   toggleMaximizePane,
+  togglePinPane,
 }: SplitPaneCommandHandlersProps) {
   useAppCommandContext("splitActive", isSplitActive);
   const directionalTargets = useMemo(
@@ -864,6 +898,11 @@ function SplitPaneCommandHandlers({
     toggleMaximizePane(maximizedPaneId ?? layout.focusedPaneId);
     return true;
   });
+  useAppCommandHandler("pane.pin.toggle", () => {
+    if (!isSplitActive) return false;
+    togglePinPane(layout.focusedPaneId);
+    return true;
+  });
   return null;
 }
 
@@ -880,6 +919,7 @@ interface SplitTreeProps {
   onFocusPane: (paneId: string) => void;
   onClosePane: (paneId: string) => void;
   onToggleMaximizePane: (paneId: string) => void;
+  onTogglePinPane: (paneId: string) => void;
   onMovePaneToSide: (paneId: string, side: SplitSide) => void;
   onResize: (
     splitPath: SplitPath,
@@ -932,6 +972,8 @@ function SplitTree(props: SplitTreeProps) {
           onClosePane={props.onClosePane}
           isMaximized={isMaximized}
           onToggleMaximizePane={props.onToggleMaximizePane}
+          isPinned={node.pinned === true}
+          onTogglePinPane={props.onTogglePinPane}
           onMovePaneToSide={props.onMovePaneToSide}
           isBoundedPane
           isTopRow={isMaximized || isTopRow}
@@ -1009,6 +1051,8 @@ interface WorkspacePaneContentProps {
   onClosePane: ((paneId: string) => void) | null;
   isMaximized: boolean;
   onToggleMaximizePane: ((paneId: string) => void) | null;
+  isPinned?: boolean;
+  onTogglePinPane?: (paneId: string) => void;
   onMovePaneToSide?: (paneId: string, side: SplitSide) => void;
   isBoundedPane: boolean;
   isTopRow: boolean;
@@ -1028,6 +1072,8 @@ const WorkspacePaneContent = memo(function WorkspacePaneContent({
   onClosePane,
   isMaximized,
   onToggleMaximizePane,
+  isPinned,
+  onTogglePinPane,
   onMovePaneToSide,
   isBoundedPane,
   isTopRow,
@@ -1043,6 +1089,11 @@ const WorkspacePaneContent = memo(function WorkspacePaneContent({
     () =>
       onToggleMaximizePane === null ? null : () => onToggleMaximizePane(paneId),
     [onToggleMaximizePane, paneId],
+  );
+  const onTogglePin = useMemo(
+    () =>
+      onTogglePinPane === undefined ? undefined : () => onTogglePinPane(paneId),
+    [onTogglePinPane, paneId],
   );
   const onMoveToSide = useMemo(
     () =>
@@ -1084,6 +1135,8 @@ const WorkspacePaneContent = memo(function WorkspacePaneContent({
       isMaximized,
       onToggleMaximize,
       onMoveToSide,
+      isPinned,
+      onTogglePin,
       isBoundedPane,
       isTopRow,
       ownsWindowTopLeft,
@@ -1102,6 +1155,8 @@ const WorkspacePaneContent = memo(function WorkspacePaneContent({
       isMaximized,
       onToggleMaximize,
       onMoveToSide,
+      isPinned,
+      onTogglePin,
       paneId,
       reservesWindowPanelToggle,
       secondaryPanelHost,
@@ -1288,6 +1343,7 @@ function NonThreadPaneContent({
   };
   const paneActions = (
     <>
+      <PanePinButton />
       <PaneMaximizeButton />
       {onRequestClose ? (
         <Button

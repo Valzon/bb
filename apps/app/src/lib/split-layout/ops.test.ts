@@ -10,8 +10,10 @@ import {
   replacePaneContent,
   resizeSplit,
   setFocus,
+  setPanePinned,
   splitPane,
   swapPanes,
+  withRecentPane,
 } from "./ops";
 import type { PaneContent, PaneNode, SplitLayout } from "./types";
 
@@ -228,5 +230,55 @@ describe("split layout operations", () => {
     }
     expect(resizeSplit(high, [], 1, 0.5)).toBe(high);
     expect(resizeSplit(high, [0], 0, 0.5)).toBe(high);
+  });
+});
+
+describe("pinning", () => {
+  it("pins and unpins a pane without touching its content or focus", () => {
+    const layout = layoutAtPaneCount(2);
+    const pinned = setPanePinned(layout, "pane-1", true);
+
+    expect(findPane(pinned.root, "pane-1")?.pinned).toBe(true);
+    expect(findPane(pinned.root, "pane-1")?.content).toEqual(
+      findPane(layout.root, "pane-1")?.content,
+    );
+    expect(pinned.focusedPaneId).toBe(layout.focusedPaneId);
+    expect(setPanePinned(pinned, "pane-1", true)).toBe(pinned);
+
+    const unpinned = setPanePinned(pinned, "pane-1", false);
+    expect(findPane(unpinned.root, "pane-1")).toEqual(
+      findPane(layout.root, "pane-1"),
+    );
+  });
+
+  it("keeps a pin with its content when panes swap", () => {
+    const pinned = setPanePinned(layoutAtPaneCount(2), "pane-1", true);
+    const swapped = swapPanes(pinned, "pane-1", "pane-2");
+
+    expect(findPane(swapped.root, "pane-2")).toEqual({
+      ...pane("pane-2", "pane-1"),
+      pinned: true,
+    });
+    expect(findPane(swapped.root, "pane-1")?.pinned).toBeUndefined();
+  });
+
+  it("keeps the pin when a pinned pane's content is replaced", () => {
+    const pinned = setPanePinned(layoutAtPaneCount(2), "pane-1", true);
+    const replaced = replacePaneContent(pinned, "pane-1", threadContent("x"));
+
+    expect(findPane(replaced.root, "pane-1")?.pinned).toBe(true);
+  });
+
+  it("orders recently focused panes newest first, without duplicates", () => {
+    expect(withRecentPane(["pane-2", "pane-1"], "pane-1")).toEqual([
+      "pane-1",
+      "pane-2",
+    ]);
+    expect(
+      withRecentPane(
+        Array.from({ length: MAX_PANES }, (_, index) => `pane-${index + 1}`),
+        "pane-9",
+      ),
+    ).toHaveLength(MAX_PANES);
   });
 });

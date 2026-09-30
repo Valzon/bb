@@ -43,6 +43,7 @@ import {
 } from "@/components/ui/context-selection";
 import { usePaneContext } from "./PaneContext";
 import { PaneMaximizeButton } from "./PaneMaximizeButton";
+import { PanePinButton } from "./PanePinButton";
 import type { ThreadHeaderGitAction } from "./useThreadGitActions";
 
 const THREAD_HEADER_ACTION_BUTTON_CLASS = cn(
@@ -246,6 +247,7 @@ export function ThreadDetailHeader({
         className="ml-1 flex items-center gap-0.5"
         data-thread-header-pane-actions=""
       >
+        <PanePinButton />
         <PaneMaximizeButton />
         {onClosePane ? (
           <Button

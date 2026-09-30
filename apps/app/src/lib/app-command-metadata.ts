@@ -185,6 +185,11 @@ export const APP_COMMAND_GROUPS: readonly AppCommandGroup[] = [
         "Maximize the focused chat pane or restore its split layout.",
       ),
       command(
+        "pane.pin.toggle",
+        "Pin or unpin focused chat pane",
+        "Keep the focused chat pane when you open something else; navigation then opens in the most recently focused unpinned pane.",
+      ),
+      command(
         "pane.close",
         "Close focused chat pane",
         "Close the focused chat pane when more than one is open.",
