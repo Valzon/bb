@@ -19,9 +19,8 @@ import { makeSidebarThread } from "../model/fixtures.js";
 installTestPluginRuntime();
 const { TopLevelSidebarSection } = await import("./TopLevelSidebarSection.js");
 const { SidebarControlButton } = await import("../rows/SidebarRowControls.js");
-const { SectionThreadDndProvider } = await import(
-  "../dnd/SectionThreadDndContext.js"
-);
+const { SectionThreadDndProvider } =
+  await import("../dnd/SectionThreadDndContext.js");
 
 function Slot({ children }: { children: ReactNode }) {
   return <TooltipProvider>{children}</TooltipProvider>;
@@ -314,14 +313,14 @@ describe("TopLevelSidebarSection", () => {
               rect: { x: 0, y: 0, width: 0.5, height: 1 },
               threadId: "thread-one",
               isFocused: true,
-              isPinned: false,
+              experimental_isPinned: false,
             },
             {
               paneId: "pane-compose",
               rect: { x: 0.5, y: 0, width: 0.5, height: 1 },
               threadId: null,
               isFocused: false,
-              isPinned: false,
+              experimental_isPinned: false,
             },
           ],
         },

@@ -12,6 +12,7 @@ const twoPanes: SplitLayout = {
         type: "pane",
         paneId: "pane_a",
         content: { kind: "thread", projectId: "proj_1", threadId: "thr_a" },
+        pinned: true,
       },
       {
         type: "pane",
@@ -44,7 +45,10 @@ describe("toPluginSidebarSplitLayout", () => {
       "thr_b",
     ]);
     expect(layout?.panes.map((pane) => pane.isFocused)).toEqual([false, true]);
-    expect(layout?.panes.map((pane) => pane.isPinned)).toEqual([false, false]);
+    expect(layout?.panes.map((pane) => pane.experimental_isPinned)).toEqual([
+      true,
+      false,
+    ]);
     const [left, right] = layout!.panes;
     expect(left!.rect.x).toBe(0);
     expect(left!.rect.width).toBeCloseTo(0.5);

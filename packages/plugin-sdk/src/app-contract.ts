@@ -1545,7 +1545,7 @@ export interface PluginSidebarSplitLayout {
      * The user pinned this pane: navigation that would replace it opens in the
      * most recently focused unpinned pane instead.
      */
-    isPinned: boolean;
+    experimental_isPinned: boolean;
   }[];
 }
 

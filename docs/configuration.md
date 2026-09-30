@@ -1098,7 +1098,7 @@ how many connected clients received the broadcast. `spotlight` focuses the
 target pane and persistently dims the others; `clear-spotlight` focuses it and
 persistently restores undimmed splits. `pin` and `unpin` pin or unpin the
 thread's pane without moving focus; they are unrelated to `bb thread pin`, which
-pins a thread in the sidebar. Plugins read pins as `isPinned` on each pane of
+pins a thread in the sidebar. Plugins read pins as `experimental_isPinned` on each pane of
 `useSidebarSplitLayout()`.
 
 ## Account Pooler [Experimental]
